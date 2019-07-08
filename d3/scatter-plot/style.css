@@ -1,0 +1,17 @@
+text {
+  font-family: 'Avenir', sans-serif;
+}
+
+.axis .domain {
+  stroke: #bbb;
+}
+
+.axis .tick line {
+  stroke: #bbb;
+  stroke-width: 0.4;
+}
+
+.axes-labels text {
+  font-size: 0.6em;
+  fill: #444;
+}

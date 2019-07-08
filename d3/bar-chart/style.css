@@ -1,0 +1,11 @@
+text {
+  font-family: 'Avenir', sans-serif;
+}
+
+.axis .domain {
+  stroke: none;
+}
+
+.x .tick line {
+  stroke: white;
+}
