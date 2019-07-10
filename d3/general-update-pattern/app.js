@@ -8,17 +8,29 @@ function update(data){
     .selectAll('text')
     .data(data, d=>d)
     .join(
-        enter => enter
+        enter => {
+            enter
             .append('text')
             .text(d => d)
-            .attr('x', 30)
+            .attr('x', -100)
             .attr('y', (d,i)=>i*30+50)
-            .style('fill','dodgerblue'),
-        update => update
+            .style('fill','dodgerblue')
+            .transition()
+            .attr('x', 30)
+        },
+        update => {
+            update
+            .transition()
             .style('fill','gray')
-            .attr('y',(d,i)=>i*30+50),
-        exit => exit
+            .attr('y',(d,i)=>i*30+50)
+        },
+        exit => {
+            exit
+            .transition()
+            .attr('x', 150)
+            .style('fill','tomato')
             .remove()
+        }
     )
 }
 
