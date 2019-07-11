@@ -47,13 +47,12 @@ function prepareScatterData(data) {
 }
 
 // Drawing utilities.
-function formatTicks(axis) {
-  axis.selectAll('text').each((d, i, nodes) => {
-    nodes[i].textContent = nodes[i].textContent
-      .replace('M', ' mil')
-      .replace('G', ' bil')
-      .replace('T', ' tril');
-  });
+function formatTicks(d) {
+  return d3
+    .format('.2~s')(d)
+    .replace('M', ' mil')
+    .replace('G', ' bil')
+    .replace('T', ' tril');
 }
 
 function addLabel(axis, label, x) {
@@ -67,8 +66,86 @@ function addLabel(axis, label, x) {
     .style('fill', '#555');
 }
 
+// Brush functionalitiy.
+// --------------------
+
+// Event handlers for selected elements.
+function mouseover() {
+  const selectedID = d3.select(this).data()[0].id;
+  d3.selectAll('.scatter')
+    .filter(d => d.id === selectedID)
+    .transition()
+    .attr('r', 6);
+}
+
+function mouseout() {
+  const selectedID = d3.select(this).data()[0].id;
+  d3.selectAll('.scatter')
+    .filter(d => d.id === selectedID)
+    .transition()
+    .attr('r', 3);
+}
+
+// Update selected elements.
+function updateSelected(data) {
+  d3.select('.selected-body')
+    .selectAll('.selected-element')
+    .data(data, d => d.id)
+    .join(
+      enter =>
+        enter
+          .append('p')
+          .attr('class', 'selected-element')
+          .html(
+            d =>
+              `<span class="selected-title">${d.title}</span>, ${
+                d.release_year
+              } <br>budget: ${formatTicks(d.budget)} | revenue: ${formatTicks(
+                d.revenue
+              )}`
+          )
+          .on('mouseover', mouseover)
+          .on('mouseout', mouseout),
+
+      update => update,
+
+      exit => exit.remove()
+    );
+}
+
+// Highlight selected circles.
+function highlightSelected(data) {
+  const selectedIDs = data.map(d => d.id);
+  d3.selectAll('.scatter')
+    .filter(d => selectedIDs.includes(d.id))
+    .style('fill', 'coral');
+
+  d3.selectAll('.scatter')
+    .filter(d => !selectedIDs.includes(d.id))
+    .style('fill', 'dodgerblue');
+}
+
 // Main function.
 function ready(movies) {
+  // Brush handler.
+  function brushed() {
+    if (d3.event.selection) {
+      const [[x0, y0], [x1, y1]] = d3.event.selection;
+      const selected = scatterData.filter(
+        d =>
+          x0 <= xScale(d.budget) &&
+          xScale(d.budget) < x1 &&
+          y0 <= yScale(d.revenue) &&
+          yScale(d.revenue) < y1
+      );
+      updateSelected(selected);
+      highlightSelected(selected);
+    } else {
+      updateSelected([]);
+      highlightSelected([]);
+    }
+  }
+
   // Data prep.
   const moviesClean = filterData(movies);
   const scatterData = prepareScatterData(moviesClean);
@@ -126,7 +203,8 @@ function ready(movies) {
   // Draw x axis.
   const xAxis = d3
     .axisBottom(xScale)
-    .ticks(5, d3.format('~s'))
+    .ticks(5)
+    .tickFormat(formatTicks)
     .tickSizeInner(-height)
     .tickSizeOuter(0);
 
@@ -135,7 +213,6 @@ function ready(movies) {
     .attr('class', 'x axis')
     .attr('transform', `translate(0, ${height})`)
     .call(xAxis)
-    .call(formatTicks)
     .call(addLabel, 'Budget', 25);
 
   xAxisDraw.selectAll('text').attr('dy', '1em');
@@ -143,7 +220,8 @@ function ready(movies) {
   // Draw y axis.
   const yAxis = d3
     .axisLeft(yScale)
-    .ticks(5, d3.format('~s'))
+    .ticks(5)
+    .tickFormat(formatTicks)
     .tickSizeInner(-width)
     .tickSizeOuter(0);
 
@@ -151,7 +229,6 @@ function ready(movies) {
     .append('g')
     .attr('class', 'y axis')
     .call(yAxis)
-    .call(formatTicks)
     .call(addLabel, 'Revenue', 5);
 
   // Draw scatter.
@@ -168,6 +245,18 @@ function ready(movies) {
     .attr('r', 3)
     .style('fill', 'dodgerblue')
     .style('fill-opacity', 0.7);
+
+  // Prepare selected elements' container.
+  d3.select('.selected-container')
+    .style('width', `${width + margin.left + margin.right}px`)
+    .style('height', `${height + margin.top + margin.bottom}px`);
+
+  // Add brush.
+  const brush = d3.brush().on('brush end', brushed);
+  svg
+    .append('g')
+    .attr('class', 'brush')
+    .call(brush);
 }
 
 // Load data.

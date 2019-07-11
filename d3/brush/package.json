@@ -1,14 +1,10 @@
 {
-  "name": "scatter-plot",
+  "name": "brush",
   "version": "1.0.0",
-  "description": "Making a scatter plot with D3",
+  "description": "Adding a brush to the scatter plot",
   "license": "ISC",
   "dependencies": {
-    "d3-array": "^2.0.3",
-    "d3-axis": "^1.0.12",
-    "d3-fetch": "^1.1.2",
-    "d3-scale": "^2.2.2",
-    "d3-selection": "^1.4.0",
-    "d3-time-format": "^2.1.3"
+    "d3": "^5",
+    "d3-array": "^2"
   }
 }

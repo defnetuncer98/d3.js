@@ -1,9 +1,17 @@
-svg {
+/* General */
+
+body {
+  display: flex;
+}
+
+svg,
+.selected-container {
   border: 1px solid #ccc;
 }
 
+body,
 text {
-  font-family: 'Avenir', sans-serif;
+  font-family: 'Montserrat', sans-serif;
 }
 
 .axis .domain {
@@ -19,4 +27,38 @@ text {
 .axes-labels text {
   font-size: 0.6em;
   fill: #444;
+}
+
+/* Film list */
+
+.selected-container {
+  display: flex;
+  flex-direction: column;
+  margin-left: 1rem;
+}
+
+.selected-header {
+  background: #f0f0f0;
+  color: #777;
+  padding: 0.5rem 2rem;
+  text-align: right;
+}
+
+.selected-body {
+  overflow: auto;
+  font-size: 0.8em;
+  cursor: default;
+}
+
+.selected-title {
+  font-weight: bold;
+}
+
+.selected-element {
+  margin: 0.5em;
+  padding: 0.5em;
+  transition: background-color 200ms ease;
+}
+.selected-element:hover {
+  background-color: #f0f0f0;
 }
