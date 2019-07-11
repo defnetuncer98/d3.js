@@ -45,7 +45,7 @@ function filterData(data) {
 // Drawing utilities.
 function formatTicks(d) {
   return d3
-    .format('~s')(d)
+    .format('.2~s')(d)
     .replace('M', ' mil')
     .replace('G', ' bil')
     .replace('T', ' tril');
@@ -53,6 +53,49 @@ function formatTicks(d) {
 
 function cutText(string) {
   return string.length < 35 ? string : string.substring(0, 35) + '...';
+}
+
+function mouseover(){
+  const tip = d3.select('.tooltip');
+  const barData = d3.select(this).data()[0];
+
+  const bodyData = [
+    ['Budget',formatTicks(barData.budget)],
+    ['Revenue',formatTicks(barData.revenue)],
+    ['Profit',formatTicks(barData.revenue-barData.budget)],
+    ['IMDB Popularity',Math.round(barData.popularity)],
+    ['IMDB Rating',barData.vote_average],
+    ['Genres',barData.genres.join(', ')],
+  ];
+
+  tip
+  .style('left', `${d3.event.clientX+15}px`)
+  .style('top', `${d3.event.clientY}px`)
+  .transition()
+  .style('opacity', 0.98);
+ 
+  tip.select('h3').html(`${barData.title}, ${barData.release_year}`);
+  tip.select('h4').html(`${barData.tagline} ${barData.runtime} min.`);
+
+  d3.select('.tip-body')
+  .selectAll('p')
+  .data(bodyData)
+  .join('p')
+  .attr('class', 'tip-info')
+  .html(d=>`${d[0]}: ${d[1]}`);
+}
+
+function mousemove(){
+  const tip = d3.select('.tooltip');
+  tip
+  .style('left', `${d3.event.clientX+15}px`)
+  .style('top', `${d3.event.clientY}px`)
+}
+
+function mouseout(){
+  d3.select('.tooltip')
+  .transition()
+  .style('opacity', 0);
 }
 
 // Main function.
@@ -125,8 +168,12 @@ function ready(movies) {
     headline.text(
       `Total ${metric} by title ${metric === 'popularity' ? '' : 'in $US'}`
     );
+  
+    d3.selectAll('.bar').on('mouseover', mouseover);
+    d3.selectAll('.bar').on('mousemove', mousemove);
+    d3.selectAll('.bar').on('mouseout', mouseout);
   }
-
+  
   // Data prep.
   const moviesClean = filterData(movies);
 
@@ -196,6 +243,7 @@ function ready(movies) {
 
   // Listen to click events.
   d3.selectAll('button').on('click', click);
+
 }
 
 // Load data.
