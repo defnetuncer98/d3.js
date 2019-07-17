@@ -14,7 +14,7 @@ function type(d) {
 }
 
 // Drawing utilities.
-function formatTicks(d) {
+function formatNumber(d) {
   return d3
     .format('.2~s')(d)
     .replace('M', ' mil')
@@ -30,6 +30,14 @@ function ready(movies) {
   const height = 680 - margin.top - margin.bottom;
 
   // Get hierarchical data.
+  const stratify =  d3.stratify()
+  .id(d=>d.node)
+  .parentId(d=>d.parent());
+
+  const filmHierarchy = stratify(movies);
+
+  filmHierarchy
+  .sum(d=)
 
   // Circle pack layout.
 
